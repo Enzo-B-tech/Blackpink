@@ -294,7 +294,7 @@
             </p>
             
             <div>
-              <label for="fullname">Nom complet </label>
+              <label for="fullname">Nom complet *</label>
               <input type="text" id="fullname" name="fullname" placeholder="Votre nom complet" required autocomplete="name" aria-required="true">
             </div>
             
@@ -368,32 +368,32 @@
   </script>
 
   <script>
-    /* Fonction pour envelopper chaque mot dans un <span tabindex="0">
-       La fonction divise les nœuds de texte en tokens en utilisant une expression régulière qui conserve les espaces */
-    function wrapWords(node) {
+    /* Fonction pour envelopper chaque phrase dans un <span tabindex="0">
+       On utilise une expression régulière pour détecter les fins de phrase (. ! ? suivi d'un espace) */
+    function wrapSentences(node) {
       if (node.nodeType === Node.TEXT_NODE) {
-        // Séparer le texte en conservant les espaces
-        let tokens = node.textContent.split(/(\s+)/);
+        // Séparer le texte en phrases
+        let sentences = node.textContent.split(/(?<=[.!?])\s+/);
         let fragment = document.createDocumentFragment();
-        tokens.forEach(token => {
-          if (token.trim() === "") {
-            // Conserver les espaces tels quels
-            fragment.appendChild(document.createTextNode(token));
-          } else {
+        sentences.forEach((sentence, index) => {
+          if (sentence.length > 0) {
             let span = document.createElement('span');
             span.setAttribute('tabindex', '0');
-            span.textContent = token;
+            span.textContent = sentence;
             fragment.appendChild(span);
+            // Ajouter un espace entre les phrases si nécessaire
+            if (index < sentences.length - 1) {
+              fragment.appendChild(document.createTextNode(" "));
+            }
           }
         });
         node.parentNode.replaceChild(fragment, node);
       } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "SCRIPT" && node.tagName !== "STYLE") {
-        // Parcourir récursivement les enfants
-        Array.from(node.childNodes).forEach(child => wrapWords(child));
+        Array.from(node.childNodes).forEach(child => wrapSentences(child));
       }
     }
     document.addEventListener("DOMContentLoaded", function() {
-      wrapWords(document.body);
+      wrapSentences(document.body);
     });
   </script>
 </body>
