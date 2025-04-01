@@ -334,6 +334,7 @@
   </footer>
 
   <script>
+    // Script de validation du formulaire
     document.getElementById('preventeForm').addEventListener('submit', function(e) {
       e.preventDefault(); // Empêche le rechargement de la page
       var messages = [];
@@ -363,6 +364,36 @@
         formMessage.textContent = "Votre inscription a été prise en compte. Merci!";
         formMessage.style.color = "green";
       }
+    });
+  </script>
+
+  <script>
+    /* Fonction pour envelopper chaque mot dans un <span tabindex="0">
+       La fonction divise les nœuds de texte en tokens en utilisant une expression régulière qui conserve les espaces */
+    function wrapWords(node) {
+      if (node.nodeType === Node.TEXT_NODE) {
+        // Séparer le texte en conservant les espaces
+        let tokens = node.textContent.split(/(\s+)/);
+        let fragment = document.createDocumentFragment();
+        tokens.forEach(token => {
+          if (token.trim() === "") {
+            // Conserver les espaces tels quels
+            fragment.appendChild(document.createTextNode(token));
+          } else {
+            let span = document.createElement('span');
+            span.setAttribute('tabindex', '0');
+            span.textContent = token;
+            fragment.appendChild(span);
+          }
+        });
+        node.parentNode.replaceChild(fragment, node);
+      } else if (node.nodeType === Node.ELEMENT_NODE && node.tagName !== "SCRIPT" && node.tagName !== "STYLE") {
+        // Parcourir récursivement les enfants
+        Array.from(node.childNodes).forEach(child => wrapWords(child));
+      }
+    }
+    document.addEventListener("DOMContentLoaded", function() {
+      wrapWords(document.body);
     });
   </script>
 </body>
